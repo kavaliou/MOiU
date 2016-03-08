@@ -1,14 +1,18 @@
 import numpy as np
 
 
-E = np.array([1, 0, 0, 0, 1, 0, 0, 0, 1], dtype=np.float).reshape((3, 3))
+def get_E(n):
+    E = np.zeros((n, n), dtype=np.float)
+    for i in xrange(n):
+        E[i, i] = 1
+    return E
 
 
 def _D(k, z):
     zk = z[k]
     z[k] = -1
     z /= -1 * zk
-    d = E.copy()
+    d = get_E(z.shape[0])
     d[:, k] = z
     return d
 
@@ -19,12 +23,13 @@ def reversal_matrix(C):
     assert C.shape[0] == C.shape[1]
 
     n = C.shape[0]
+    E = get_E(n)
     S = np.zeros((n, ))
     B = [E, ]
     C0 = [E.copy(), ]
-    J = [range(3), ]
+    J = [range(n), ]
 
-    for i in range(n):
+    for i in xrange(n):
         k = -1
         for num, j in enumerate(J[i]):
             e = C0[i][:, i].transpose()
@@ -49,7 +54,7 @@ def reversal_matrix(C):
         temp_B = np.dot(_D(k, temp_z), B[i])
         B.append(temp_B)
 
-    new_B = np.zeros((3,3))
+    new_B = np.zeros((n, n))
     for num, s in enumerate(S):
         new_B[s] = B[-1][num]
 
