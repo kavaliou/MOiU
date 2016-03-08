@@ -18,7 +18,12 @@ def _D(k, z):
 
 
 def reversal_matrix(C):
-    assert isinstance(C, np.ndarray)
+    assert isinstance(C, (np.ndarray, list, tuple))
+    if isinstance(C, (list, tuple)):
+        try:
+            C = np.array(C, dtype=np.float)
+        except ValueError:
+            raise Exception("Matrix must be square")
     assert C.ndim == 2
     assert C.shape[0] == C.shape[1]
 
@@ -39,7 +44,7 @@ def reversal_matrix(C):
                 k = j
                 break
 
-        assert k != -1
+        assert k != -1, "Can't find the reversal matrix"
 
         temp_array = J[i][:]
         temp_array.remove(k)
