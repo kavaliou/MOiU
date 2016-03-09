@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import det
 
 
 def get_E(n):
@@ -26,6 +27,7 @@ def reversal_matrix(C):
             raise Exception("Matrix must be square")
     assert C.ndim == 2
     assert C.shape[0] == C.shape[1]
+    assert det(C) != 0
 
     n = C.shape[0]
     E = get_E(n)
