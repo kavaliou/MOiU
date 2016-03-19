@@ -39,7 +39,7 @@ def reversal_matrix(C):
     for i in xrange(n):
         k = -1
         for num, j in enumerate(J[i]):
-            e = C0[i][:, i].transpose()
+            e = E[:, i].transpose()
             a = np.dot(e, B[i])
             a = np.dot(a, C[:, j])
             if a != 0:
@@ -57,12 +57,12 @@ def reversal_matrix(C):
         temp_C[:, i] = _ci
         C0.append(temp_C)
 
-        temp_z = np.dot(B[i], C[:, i])
-        temp_B = np.dot(_D(k, temp_z), B[i])
+        temp_z = np.dot(B[i], _ci)
+        temp_B = np.dot(_D(i, temp_z), B[i])
         B.append(temp_B)
 
     new_B = np.zeros((n, n))
     for num, s in enumerate(S):
-        new_B[s] = B[-1][num]
+        new_B[num] = B[-1][s]
 
     return new_B
