@@ -37,12 +37,12 @@ from second import simplex_method
 # print s, sum(map(lambda q, w: q*w, [-5, 2, 3, -4, -6, 0, 1, -5], s))
 
 # ?
-A = np.array([-2, 3, 1, 1, 0, 0, 1, 2, 2, 0, 1, 0, 2, -1, -3, 0, 0, 1],
-             dtype=np.float).reshape((3, 6))
-s = simplex_method(A, np.array([36, 45, 30]), np.array([2, 4, 1, 0, 0, 0]),
-                     np.array([0, 0, 0, 1, 1, 1], dtype=np.float))
-
-print s, sum(map(lambda q, w: q*w, [2, 4, 1, 0, 0, 0], s))
+# A = np.array([-2, 3, 1, 1, 0, 0, 1, 2, 2, 0, 1, 0, 2, -1, -3, 0, 0, 1],
+#              dtype=np.float).reshape((3, 6))
+# s = simplex_method(A, np.array([36, 45, 30]), np.array([2, 4, 1, 0, 0, 0]),
+#                      np.array([0, 0, 0, 36, 45, 30], dtype=np.float))
+#
+# print s, sum(map(lambda q, w: q*w, [2, 4, 1, 0, 0, 0], s))
 
 # !
 # A = np.array([1, 1, -2, 3, 2, -1, -1, 3],
@@ -81,4 +81,4 @@ print s, sum(map(lambda q, w: q*w, [2, 4, 1, 0, 0, 0], s))
 
 # print reversal_matrix([[2,1,1],[-1,0,-1],[1,1,2]])
 # print reversal_matrix([[0,1,1],[-1,1,-1],[1,1,2]])
-# print reversal_matrix([[0, 2, 1], [0, 1, 1], [1, 1, 1]])
+print reversal_matrix([[0, 2, 3], [0, 1, 1], [1, -1, 1]])
