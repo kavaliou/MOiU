@@ -2,11 +2,22 @@ from first import reversal_matrix, get_E
 import numpy as np
 
 
-def simplex_method(A, b, C, x0):
-    A_basis = np.array([a for num, a in enumerate(A.transpose()) if x0[num]]).transpose()
+def simplex_method(A, b, C, x0=None, J_b=None):
+    n = len(C)
+    assert x0 is not None or J_b is not None
+    if J_b is None:
+        J_b = [num for num, i in enumerate(x0) if i]
+    J_nb = [j for j in xrange(n) if j not in J_b]
+    A_basis = np.array([A[:, j] for j in J_b]).transpose()
     B = reversal_matrix(A_basis)
-    J_b = [num for num, i in enumerate(x0) if i]
-    J_nb = [num for num, i in enumerate(x0) if not i]
+    if x0 is None:
+        x0 = [0] * n
+        for num, i in enumerate(np.dot(B, b)):
+            x0[J_b[num]] = i
+
+
+
+
 
     while True:
 
