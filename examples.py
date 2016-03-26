@@ -81,4 +81,4 @@ from second import simplex_method
 
 # print reversal_matrix([[2,1,1],[-1,0,-1],[1,1,2]])
 # print reversal_matrix([[0,1,1],[-1,1,-1],[1,1,2]])
-print reversal_matrix([[0, 2, 3], [0, 1, 1], [1, -1, 1]])
+# print reversal_matrix([[0, 2, 3], [0, 1, 1], [1, -1, 1]])
