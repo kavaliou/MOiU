@@ -3,10 +3,10 @@ def transport_task(a, b, c):
         _n, _m = len(arr), len(arr[0])
         if check_matrix is None:
             check_matrix = [[1] * _m for _ in range(_n)]
-        min_value, _i, _j = max([max(x) for x in arr]), 0, 0
+        min_value, _i, _j = None, 0, 0
         for i_ in xrange(_n):
             for j_ in xrange(_m):
-                if arr[i_][j_] < min_value and check_matrix[i_][j_]:
+                if (arr[i_][j_] < min_value or min_value is None) and check_matrix[i_][j_]:
                     min_value = arr[i_][j_]
                     _i = i_
                     _j = j_
@@ -136,4 +136,4 @@ def transport_task(a, b, c):
                 u[point] += min_value
         del u[item_min_value]
 
-    return sum([value * c[item[0]][item[1]] for item, value in u.iteritems()])
+    return u
