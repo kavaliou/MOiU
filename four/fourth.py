@@ -116,6 +116,7 @@ def transport_task(a, b, c):
 
     while True:
         ui, vj = calculate_potentials(u)
+        print u
         delta_ij = {}
         indexes = []
         [[indexes.append((i, j)) for j in range(m) if (i, j) not in u] for i in range(n)]
