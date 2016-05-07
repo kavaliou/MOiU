@@ -18,11 +18,13 @@ def fifth(A, B, b, d, x0, J_op, J_star=None, c=None, D=None):
         if not pass_step_first:
             # step 1
             c_x0 = np.dot(D, x0) + c
+            print 'c_x0', c_x0
             c_op_x0 = np.array([_c for num, _c in enumerate(c_x0) if num in J_op], dtype=np.float64)
             print 'c_op', c_op_x0
             # A_op = np.array([_A for num, _A in enumerate(A.transpose()) if num in J_op], dtype=np.float64).transpose()
             A_op = np.array([A[:, j] for j in J_op], dtype=np.float64).transpose()
             u_ = -1 * np.dot(c_op_x0.transpose(), reversal_matrix(A_op))
+            print 'u\'', u_
             deltas = np.dot(u_, A) + c_x0
             print 'deltas', deltas
 
@@ -45,8 +47,11 @@ def fifth(A, B, b, d, x0, J_op, J_star=None, c=None, D=None):
             [list(D_star[i]) + list(A_star.transpose()[i]) for i in range(D_star.shape[0])] +
             [list(A_star[i]) + [0]*A_star.shape[0] for i in range(A_star.shape[0])], dtype=np.float64)
         bb = np.array(list(D_star_j0) + list(A[:, j0]), dtype=np.float64)
+        print 'bb', bb
         l_J_star__delta_y = -1 * np.dot(reversal_matrix(H), bb)
+        print 'l_J_star__delta_y', l_J_star__delta_y
         l_J_star = l_J_star__delta_y[:D_star.shape[0]]
+        print 'l_J_star', l_J_star
         delta_y = l_J_star__delta_y[D_star.shape[0]:]
         for num, j in enumerate(J_star):
             l[j] = l_J_star[num]

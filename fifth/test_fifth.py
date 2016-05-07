@@ -3,24 +3,23 @@ import numpy as np
 from fifth import fifth
 
 
-# A = np.array([
-#     [2, -2, 14, 1],
-#     [1, -2, 10, 2]], dtype=np.float64)
-# D = np.array([
-#     [4, 0, 0, 0],
-#     [0, 3, 0, 0],
-#     [0, 0, 1, 0],
-#     [0, 0, 0, 1]], dtype=np.float64)
-# b = np.array([2, 0], dtype=np.float64)
-# # d = np.array([7, 3, 3], dtype=np.float64)
-# x0 = np.array([2, 1, 0, 0], dtype=np.float64)
-# J_op = [0, 1]
-# J_star = [0, 1]
-# c = np.array([0, 0, 0, 0], dtype=np.float64)
-#
-# answer = fifth(A, None, b, None, x0, J_op, c=c, J_star=J_star, D=D)
-# print answer, np.dot(c, answer) + 0.5 * np.dot(np.dot(answer, D), answer)
-# print
+A = np.array([
+    [2, -2, 14, 1],
+    [1, -2, 10, 2]], dtype=np.float64)
+D = np.array([
+    [4, 0, 0, 0],
+    [0, 3, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]], dtype=np.float64)
+b = np.array([2, 0], dtype=np.float64)
+x0 = np.array([2, 1, 0, 0], dtype=np.float64)
+J_op = [0, 1]
+J_star = [0, 1]
+c = np.array([0, 0, 0, 0], dtype=np.float64)
+
+answer = fifth(A, None, b, None, x0, J_op, c=c, J_star=J_star, D=D)
+print answer, np.dot(c, answer) + 0.5 * np.dot(np.dot(answer, D), answer)
+print
 #
 #
 # A = np.array([
@@ -154,28 +153,28 @@ from fifth import fifth
 # print
 #
 # 4 DONE
-A = np.array([
-    [0, 2, 1, 4, 3, 0, -5, -10],
-    [-1, 1, 1, 0, 1, 1, -1, -1],
-    [1, 1, 1, 0, 1, -2, -5, 8]], dtype=np.float64)
-D = np.array([
-    [25, 10, 0, 3, -1, 13, 0, 1],
-    [10, 45, 0, 0, 0, 20, 0, 0],
-    [0, 0, 20, 0, 0, 0, 0, 0],
-    [3, 0, 0, 29, -3, 15, 0, 3],
-    [-1, 0, 0, -3, 21, -5, 0, -1],
-    [13, 20, 0, 15, -5, 61, 0, 5],
-    [0, 0, 0, 0, 0, 0, 20, 0],
-    [1, 0, 0, 3, -1, 5, 0, 21]], dtype=np.float64)
-b = np.array([20, 1, 7], dtype=np.float64)
-d = np.array([6, 10, 9], dtype=np.float64)
-x0 = np.array([3, 0, 0, 2, 4, 0, 0, 0], dtype=np.float64)
-J_op = [0, 3, 4]
+# A = np.array([
+#     [0, 2, 1, 4, 3, 0, -5, -10],
+#     [-1, 1, 1, 0, 1, 1, -1, -1],
+#     [1, 1, 1, 0, 1, -2, -5, 8]], dtype=np.float64)
+# D = np.array([
+#     [25, 10, 0, 3, -1, 13, 0, 1],
+#     [10, 45, 0, 0, 0, 20, 0, 0],
+#     [0, 0, 20, 0, 0, 0, 0, 0],
+#     [3, 0, 0, 29, -3, 15, 0, 3],
+#     [-1, 0, 0, -3, 21, -5, 0, -1],
+#     [13, 20, 0, 15, -5, 61, 0, 5],
+#     [0, 0, 0, 0, 0, 0, 20, 0],
+#     [1, 0, 0, 3, -1, 5, 0, 21]], dtype=np.float64)
+# b = np.array([20, 1, 7], dtype=np.float64)
+# d = np.array([6, 10, 9], dtype=np.float64)
+# x0 = np.array([3, 0, 0, 2, 4, 0, 0, 0], dtype=np.float64)
+# J_op = [0, 3, 4]
 
-c = np.array([1, -3, 4, 3, 5, 6, -2, 0], dtype=np.float64)
-answer = fifth(A, None, b, d, x0, J_op, c=c, D=D)
-print answer, np.dot(c.transpose(), answer) + 0.5 * np.dot(np.dot(answer.transpose(), D), answer)
-print
+# c = np.array([1, -3, 4, 3, 5, 6, -2, 0], dtype=np.float64)
+# answer = fifth(A, None, b, d, x0, J_op, c=c, D=D)
+# print answer, np.dot(c.transpose(), answer) + 0.5 * np.dot(np.dot(answer.transpose(), D), answer)
+# print
 #
 # # 5
 # A = np.array([
