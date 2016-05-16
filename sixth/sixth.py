@@ -5,7 +5,7 @@ from scipy.optimize import linprog
 
 
 MULTIPLIER = 10
-CONSTANT = 199
+COUNT_CONSTANT = 50
 
 
 def sixth(c, B, D, ci, Bi, Di, alpha, x_star, J_star):
@@ -19,10 +19,7 @@ def sixth(c, B, D, ci, Bi, Di, alpha, x_star, J_star):
     n, m = D.shape[0], len(Di)
 
     while True:
-        f_x_star = x_star, np.dot(c, x_star) + 0.5 * np.dot(np.dot(x_star, D), x_star)
-
         gi_x_star = []
-        I0 = []
         actives = []
         non_actives = []
         for i in range(m):
@@ -61,18 +58,18 @@ def sixth(c, B, D, ci, Bi, Di, alpha, x_star, J_star):
         b = np.dot(Df__Dx, dx)
         if b > 0:
             coefs_alpha = [- 2 * F_x_star / b]
-            coefs_alpha.extend(- F_x_star / ((random() * MULTIPLIER + 1 + 1e-9) * b) for _ in xrange(CONSTANT))
+            coefs_alpha.extend(- F_x_star / ((random() * MULTIPLIER + 1 + 1e-9) * b) for _ in xrange(COUNT_CONSTANT))
         else:
             coefs_alpha = [1]
-            coefs_alpha.extend(random() * MULTIPLIER + 1e-9 for _ in xrange(CONSTANT))
+            coefs_alpha.extend(random() * MULTIPLIER + 1e-9 for _ in xrange(COUNT_CONSTANT))
 
         ts = [0.5]
-        ts.extend([random() for _ in xrange(CONSTANT)])
+        ts.extend([random() for _ in xrange(COUNT_CONSTANT)])
 
         f_start = np.dot(c, x_star) + np.dot(np.dot(x_star, D), x_star) / 2
         for t in ts:
-            for coef in coefs_alpha:
-                x_new = x_star + (t * answer) + coef * t * (x - x_star)
+            for __alpha in coefs_alpha:
+                x_new = x_star + (t * answer) + __alpha * t * dx
                 if any(x_new[i] < 0 for i in xrange(n)):
                     continue
                 f_new = np.dot(c, x_new) + np.dot(np.dot(x_new, D), x_new) / 2
@@ -81,9 +78,6 @@ def sixth(c, B, D, ci, Bi, Di, alpha, x_star, J_star):
                         if (np.dot(ci[i], x_new) + np.dot(np.dot(x_new, Di[i]), x_new) / 2 + alpha[i]) > 0:
                             break
                     else:
-                        print 'f start:', f_start
-                        print 'f new:', f_new
-                        print x_new
-                        return
+                        return x_new
 
-        return ':('
+        raise Exception('There is no improving.')

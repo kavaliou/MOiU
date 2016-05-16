@@ -49,10 +49,12 @@ alpha = np.array([-51.75, -436.75, -33.7813, -303.375, -41.75], np.float64)
 x_star = [1, 0, 0, 2, 4, 2, 0, 0]
 J_star = [1, 2, 6, 7]
 
+if D is None:
+    D = np.dot(B.transpose(), B)
+print 'start', np.dot(c, x_star) + np.dot(np.dot(x_star, D), x_star) / 2
 answer = sixth(c, B, None, ci, Bi, None, alpha, x_star, J_star)
-
-
-#
+print 'end', np.dot(c, answer) + np.dot(np.dot(answer, D), answer) / 2
+print
 
 
 c = np.array([-1, -1, -1, -1, -2, 0, -2, -3], dtype=np.float64)
@@ -101,4 +103,9 @@ alpha = np.array([-687.125, -666.625, -349.5938, -254.625, -45.1563], np.float64
 x_star = [0, 8, 2, 1, 0, 4, 0, 0]
 J_star = [1, 2, 6, 7]
 
+if D is None:
+    D = np.dot(B.transpose(), B)
+print 'start', np.dot(c, x_star) + np.dot(np.dot(x_star, D), x_star) / 2
 answer = sixth(c, B, None, ci, Bi, None, alpha, x_star, J_star)
+print 'end', np.dot(c, answer) + np.dot(np.dot(answer, D), answer) / 2
+print
