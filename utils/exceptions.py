@@ -1,0 +1,2 @@
+class ReversalMatrixNotExistError(ValueError):
+    pass

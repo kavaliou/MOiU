@@ -1,4 +1,5 @@
-from first import reversal_matrix, get_E
+from utils.utils import get_unit_matrix
+from utils.reversal_matrix import reversal_matrix
 import numpy as np
 
 
@@ -65,6 +66,6 @@ def simplex_method(A, b, C, x0=None, J_b=None):
         z_s = d[s]
         d[s] = -1
         d /= -1 * z_s
-        M = get_E(d.shape[0])
+        M = get_unit_matrix(d.shape[0])
         M[:, s] = d
         B = np.dot(M, B)

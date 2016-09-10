@@ -1,5 +1,5 @@
 # coding=utf-8
-from first import reversal_matrix
+from utils.reversal_matrix import reversal_matrix
 import numpy as np
 
 

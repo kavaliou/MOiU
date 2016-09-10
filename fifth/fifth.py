@@ -1,6 +1,6 @@
 import numpy as np
 
-from first import reversal_matrix
+from utils.reversal_matrix import reversal_matrix
 
 
 def fifth(A, B, b, d, x0, J_op, J_star=None, c=None, D=None):
