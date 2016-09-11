@@ -1,5 +1,5 @@
 import numpy as np
-from second import simplex_method
+from .second import simplex_method
 
 # 4
 A = np.array([-2, 3, 1, 1, 0, 0, 1, 2, 2, 0, 1, 0, 2, -1, -3, 0, 0, 1],

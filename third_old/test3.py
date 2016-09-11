@@ -1,7 +1,7 @@
 import numpy as np
 
-from second import simplex_method
-from third import dual_simplex_method
+from second_old.second import simplex_method
+from .third import dual_simplex_method
 
 # from lesson
 A = np.array([1, -1, 3, -2, 1, -5, 11, -6], dtype=np.float).reshape((2, 4))
@@ -11,18 +11,18 @@ print s[0], sum(map(lambda q, w: q*w, [1, 1, -2, -3], s[0]))
 print
 
 # Max Tishka #1
-A = np.array([-3, -1, 1, 0, 0,
-              -4, -3, 0, 1, 0,
-              1, 2, 0, 0, 1], dtype=np.float).reshape((3, 5))
-try:
-    s = dual_simplex_method(A, np.array([-3, -6, 3]), np.array([2, 4, 0, 0, 0]),
-                        np.array([-1, -2, 1], dtype=np.float), [2, 3, 4])
-    print s
-    s = simplex_method(A, np.array([-3, -6, 3]), np.array([2, 4, 0, 0, 0]), s[0], s[1])
-    print s, sum(map(lambda q, w: q*w, [2, 4, 0, 0, 0], s))
-except AssertionError as e:
-    print e.message
-print
+# A = np.array([-3, -1, 1, 0, 0,
+#               -4, -3, 0, 1, 0,
+#               1, 2, 0, 0, 1], dtype=np.float).reshape((3, 5))
+# try:
+#     s = dual_simplex_method(A, np.array([-3, -6, 3]), np.array([2, 4, 0, 0, 0]),
+#                         np.array([-1, -2, 1], dtype=np.float), [2, 3, 4])
+#     print s
+#     s = simplex_method(A, np.array([-3, -6, 3]), np.array([2, 4, 0, 0, 0]), s[0], s[1])
+#     print s, sum(map(lambda q, w: q*w, [2, 4, 0, 0, 0], s))
+# except AssertionError as e:
+#     print e.message
+# print
 
 def shevch():
     # Anton Shevchenya #1 ++++++++++++++++++++++++++

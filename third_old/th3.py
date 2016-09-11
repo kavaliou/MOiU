@@ -1,7 +1,7 @@
 import numpy as np
 
-from second import simplex_method
-from third import dual_simplex_method
+from second_old.second import simplex_method
+from .third import dual_simplex_method
 
 
 c = np.array([0, -6, 6, 0, 0, 0, 0], dtype=np.float64)
