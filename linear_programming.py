@@ -5,7 +5,7 @@ from utils.reversal_matrix import reversal_matrix
 
 
 class LinearProgrammingTask(object):
-    def __init__(self, matrix_a, vector_b, vector_c, x0=None, j_basis=None):
+    def __init__(self, matrix_a, vector_b, vector_c, x0=None, j_basis=None, y=None):
         self.initial = {
             'matrix_a': matrix_a,
             'vector_b': vector_b,
@@ -13,21 +13,24 @@ class LinearProgrammingTask(object):
             'x0': x0,
             'j_basis': j_basis
         }
+        if y is not None:
+            self.initial.update({'y': y})
+
         self.matrix_a = None
         self.vector_b = None
         self.vector_c = None
         self.x0 = None
         self.j_basis = None
+        self.y = None
         self.matrix_b = None
-        self._result = None
+        self._result_x = None
+        self._result_y = None
         self._exception_message = None
+        self.n = None
 
     def _set_variables(self):
-        self.matrix_a = self.initial.get('matrix_a')
-        self.vector_b = self.initial.get('vector_b')
-        self.vector_c = self.initial.get('vector_c')
-        self.x0 = self.initial.get('x0')
-        self.j_basis = self.initial.get('j_basis')
+        for key, value in self.initial.iteritems():
+            setattr(self, key, value)
 
     def _prepare_task_for_simplex_method(self):
         self._set_variables()
@@ -63,7 +66,7 @@ class LinearProgrammingTask(object):
             )
 
             if not negative_deltas:
-                self._result = self.x0
+                self._result_x = self.x0
                 return True
 
             delta = min([(nd[1], nd[0]) for nd in negative_deltas])
@@ -100,20 +103,77 @@ class LinearProgrammingTask(object):
             matrix_m[:, s] = d
             self.matrix_b = np.dot(matrix_m, self.matrix_b)
 
-    @property
-    def result(self):
-        if self._result is None:
-            raise Exception("Task was not solved yet")
-        return self._result
+    def _prepare_task_for_dual_simplex_method(self):
+        self._set_variables()
+        self.n = len(self.vector_c)
+        self.j_not_basis = [j for j in xrange(self.n) if j not in self.j_basis]
+
+    def solve_with_dual_simplex_method(self):
+        self._prepare_task_for_dual_simplex_method()
+
+        while True:
+            A_basis = np.array([self.matrix_a[:, j] for j in self.j_basis]).transpose()
+            B = reversal_matrix(A_basis)
+            kappa = np.dot(B, self.vector_b)
+
+            negative_kappas = filter(lambda k: k[1] < 0, enumerate(kappa))
+
+            if not negative_kappas:
+                x = [0] * self.n
+                for num, j in enumerate(self.j_basis):
+                    x[j] = kappa[num]
+                self._result_x = x
+                self._result_y = self.y
+                return True
+
+            delta = min([(nd[1], nd[0]) for nd in negative_kappas])
+            js = delta[1]
+
+            mu = [np.dot(B[js], self.matrix_a[:, j]) for j in self.j_not_basis]
+            sigma = min(
+                [[(self.vector_c[j] - np.dot(self.matrix_a[:, j].transpose(), self.y)) / mu[num], j] for num, j in enumerate(self.j_not_basis) if mu[num] < 0]
+                or [None])
+            if sigma is None:
+                self._exception_message = "Set of permissible plans is empty"
+                return False
+
+            self.y = self.y + sigma[0] * B[js]
+            j0 = sigma[1]
+
+            js = self.j_basis[js]
+
+            for i in xrange(len(self.j_not_basis)):
+                if self.j_not_basis[i] == j0:
+                    self.j_not_basis[i] = js
+                    break
+
+            for i in xrange(len(self.j_basis)):
+                if self.j_basis[i] == js:
+                    self.j_basis[i] = j0
+                    break
 
     @property
-    def target_function_value(self):
-        if self._result is None:
-            raise Exception("Task was not solved yet")
-        return sum(map(lambda q, w: q*w, self.vector_c, self._result))
+    def result_x(self):
+        self._raise_if_was_not_solved()
+        return self._result_x
+
+    @property
+    def result_y(self):
+        self._raise_if_was_not_solved()
+        return self._result_y
+
+    def get_target_function_value(self, task='simple'):
+        self._raise_if_was_not_solved()
+        if task == 'simple':
+            return sum(map(lambda q, w: q*w, self.vector_c, self._result_x))
+        if task == 'dual':
+            return sum(map(lambda q, w: q*w, self.vector_b, self._result_y))
 
     @property
     def exception_message(self):
-        if self._exception_message is None:
-            raise Exception("Task was not solved yet")
+        self._raise_if_was_not_solved()
         return self._exception_message
+
+    def _raise_if_was_not_solved(self):
+        if self._result_x is None and self._exception_message is None:
+            raise Exception("Task was not solved yet")

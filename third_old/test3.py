@@ -1,7 +1,7 @@
 import numpy as np
 
 from second_old.second import simplex_method
-from .third import dual_simplex_method
+from third_old.third import dual_simplex_method
 
 # from lesson
 A = np.array([1, -1, 3, -2, 1, -5, 11, -6], dtype=np.float).reshape((2, 4))
@@ -34,9 +34,10 @@ def shevch():
             [-1, -4, 0, 0, 1]], dtype=np.float64)
     jb = [2, 3, 4]
     try:
-        s, _, __ = dual_simplex_method(A, b, c, b, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -49,9 +50,10 @@ def shevch():
             [-2, 3, 0, 1]], dtype=np.float64)
     jb = [2, 3]
     try:
-        s, _, __ = dual_simplex_method(A, b, c, b, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -66,9 +68,10 @@ def shevch():
     jb = [4, 5, 6]
     y = np.array([0, 5, -2], dtype=np.float64)
     try:
-        s, _, __ = dual_simplex_method(A, b, c, y, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -82,9 +85,10 @@ def shevch():
             [-1, -2, 0, 0, 1]], dtype=np.float64)
     jb = [1, 3, 4]
     try:
-        s, _, __ = dual_simplex_method(A, b, c, b, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -98,9 +102,10 @@ def shevch():
             [-2, 1, -2, 0, 0, 1]], dtype=np.float64)
     jb = [3, 4, 5]
     try:
-        s, _, __ = dual_simplex_method(A, b, c, b, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -115,9 +120,10 @@ def shevch():
             [0, -1, 2, 0, 0, 0, 1]], dtype=np.float64)
     jb = [3, 4, 5, 6]
     try:
-        s, _, __ = dual_simplex_method(A, b, c, b, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -135,9 +141,10 @@ def from_metoda():
     jb = [0, 1, 2]
     y = np.array([1, 2, -1], dtype=np.float64)
     try:
-        s, _, __ = dual_simplex_method(A, b, c, y, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -152,9 +159,10 @@ def from_metoda():
     jb = [1, 3, 5]
     y = np.array([1, 2, -1], dtype=np.float64)
     try:
-        s, _, __ = dual_simplex_method(A, b, c, y, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -169,9 +177,10 @@ def from_metoda():
     jb = [1, 3, 5]
     y = np.array([-3, -2, -1], dtype=np.float64)
     try:
-        s, _, __ = dual_simplex_method(A, b, c, y, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -186,9 +195,10 @@ def from_metoda():
     jb = [1, 7, 4]
     y = np.array([-3, -2, -1], dtype=np.float64)
     try:
-        s, _, __ = dual_simplex_method(A, b, c, y, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
@@ -203,9 +213,10 @@ def from_metoda():
     jb = [6, 7, 3]
     y = np.array([-3, 7, -1], dtype=np.float64)
     try:
-        s, _, __ = dual_simplex_method(A, b, c, y, jb)
+        s, s1, __ = dual_simplex_method(A, b, c, b, jb)
         # s = simplex_method(A, b, c, s[0], s[1])
         print s, sum(map(lambda q, w: q*w, c, s))
+        print s, sum(map(lambda q, w: q*w, b, s1))
     except AssertionError as e:
         print e.message
     print
