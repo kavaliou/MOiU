@@ -5,16 +5,18 @@ from utils.reversal_matrix import reversal_matrix
 
 
 class LinearProgrammingTask(object):
-    def __init__(self, matrix_a, vector_b, vector_c, x0=None, j_basis=None, y=None):
+    def __init__(self, matrix_a, vector_b, vector_c, x0=None, j_basis=None, y=None,
+                 d_bottom=None, d_top=None):
         self.initial = {
             'matrix_a': matrix_a,
             'vector_b': vector_b,
             'vector_c': vector_c,
             'x0': x0,
-            'j_basis': j_basis
+            'j_basis': j_basis,
+            'y': y,
+            'd_bottom': d_bottom,
+            'd_top': d_top
         }
-        if y is not None:
-            self.initial.update({'y': y})
 
         self.matrix_a = None
         self.vector_b = None
@@ -27,6 +29,8 @@ class LinearProgrammingTask(object):
         self._result_y = None
         self._exception_message = None
         self.n = None
+        self.d_bottom = None
+        self.d_top = None
 
     def _set_variables(self):
         for key, value in self.initial.iteritems():
@@ -107,6 +111,11 @@ class LinearProgrammingTask(object):
         self._set_variables()
         self.n = len(self.vector_c)
         self.j_not_basis = [j for j in xrange(self.n) if j not in self.j_basis]
+        self.matrix_a_basis = np.array([self.matrix_a[:, j] for j in self.j_basis]).transpose()
+        self.matrix_b = reversal_matrix(self.matrix_a_basis)
+        c_basis = [self.vector_c[j] for j in xrange(self.n) if j in self.j_basis]
+        if self.y is None:
+            self.y = np.dot(c_basis, self.matrix_b)
 
     def solve_with_dual_simplex_method(self):
         self._prepare_task_for_dual_simplex_method()
@@ -151,6 +160,79 @@ class LinearProgrammingTask(object):
                 if self.j_basis[i] == js:
                     self.j_basis[i] = j0
                     break
+
+    def solve_with_dual_simplex_method_with_constraints(self):
+        self._prepare_task_for_dual_simplex_method()
+        J = sorted(self.j_basis + self.j_not_basis)
+        # step 1
+        deltas = [np.dot(self.y, self.matrix_a[:,j]) - self.vector_c[j] for j in J]
+        j_not_basis_plus = [num for num, elem in enumerate(deltas)
+                                 if elem >= 0 and num in self.j_not_basis]
+        j_not_basis_minus = [elem for elem in self.j_not_basis
+                                  if elem not in j_not_basis_plus]
+
+        while True:
+            # step 2
+            kappas = [0] * self.n
+            for j in J:
+                if j in j_not_basis_plus:
+                    kappas[j] = self.d_bottom[j]
+                elif j in j_not_basis_minus:
+                    kappas[j] = self.d_top[j]
+            s = sum([self.matrix_a[:, j_] * kappas[j_]
+                     for j_ in sorted(j_not_basis_minus + j_not_basis_plus)])
+            kappas_a = np.dot(self.matrix_b, self.vector_b - s)
+            for num, j in enumerate(self.j_basis):
+                kappas[j] = kappas_a[num]
+
+            # step 3
+            if all(map(lambda (_d_bottom, _kappa, _d_top): _d_bottom <= _kappa <= _d_top,
+                       zip(self.d_bottom, kappas, self.d_top))):
+                self._result_x = kappas
+                return True
+
+            # step 4
+            k, j_k = min([(num, j) for num, j in enumerate(self.j_basis)
+                      if not (self.d_bottom[j] <= kappas[j] <= self.d_top[j])])
+
+            # step 5
+            mu_j_k = 1 if kappas[j_k] < self.d_bottom[j_k] else -1
+            delta_y = mu_j_k * np.dot(np.array([1 if i == k else 0 for i in range(len(self.j_basis))]),
+                                      self.matrix_b)
+            mu = [np.dot(delta_y, self.matrix_a[:, j]) for j in J]
+
+            # step 6
+            sigmas = np.array([-float(deltas[j]) / mu[j]
+                     if (j in j_not_basis_plus and mu[j] < 0)
+                        or (j in j_not_basis_minus and mu[j] > 0) else 'Inf'
+                     for j in sorted(j_not_basis_plus + j_not_basis_minus)])
+            sigma_0, j_star = min(map(lambda x: (x[1], x[0]), enumerate(sigmas)))
+            sigma_0 = float(sigma_0)
+
+            # step 7
+            if sigma_0 == float('inf'):
+                self._exception_message = "Set of permissible plans is empty"
+                return False
+
+            # step 8
+            deltas = [deltas[j] + sigma_0*mu[j] for j in J]
+            self.j_basis[k] = j_star
+            self.matrix_a_basis = np.array([self.matrix_a[:, j] for j in self.j_basis]).transpose()
+            self.matrix_b = reversal_matrix(self.matrix_a_basis)
+
+            # step 9
+            self.j_not_basis = [j for j in xrange(self.n) if j not in self.j_basis]
+            if j_star in j_not_basis_plus:
+                if mu_j_k == 1:
+                    j_not_basis_plus[j_not_basis_plus.index(j_star)] = j_k
+                else:
+                    j_not_basis_plus.remove(j_star)
+            else:
+                if mu_j_k == 1:
+                    j_not_basis_plus.append(j_k)
+
+            j_not_basis_minus = [elem for elem in self.j_not_basis
+                                 if elem not in j_not_basis_plus]
 
     @property
     def result_x(self):
