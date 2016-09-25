@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 from utils.utils import get_unit_matrix
@@ -114,6 +116,7 @@ class LinearProgrammingTask(object):
         self.m = len(self.vector_b)
 
         answer = []
+
         def gen(n, m, mas=None):
             if mas is None:
                 mas = []
@@ -126,6 +129,7 @@ class LinearProgrammingTask(object):
                     else:
                         gen(n, m, mas)
                     mas.remove(i)
+
         if self.j_basis is None:
             gen(self.n, self.m)
             for i in answer:
@@ -167,7 +171,8 @@ class LinearProgrammingTask(object):
 
             mu = [np.dot(B[js], self.matrix_a[:, j]) for j in self.j_not_basis]
             sigma = min(
-                [[(self.vector_c[j] - np.dot(self.matrix_a[:, j].transpose(), self.y)) / mu[num], j] for num, j in enumerate(self.j_not_basis) if mu[num] < 0]
+                [[(self.vector_c[j] - np.dot(self.matrix_a[:, j].transpose(), self.y)) / mu[num], j] for num, j in
+                 enumerate(self.j_not_basis) if mu[num] < 0]
                 or [None])
             if sigma is None:
                 self._exception_message = "Set of permissible plans is empty"
@@ -192,11 +197,11 @@ class LinearProgrammingTask(object):
         self._prepare_task_for_dual_simplex_method()
         J = sorted(self.j_basis + self.j_not_basis)
         # step 1
-        deltas = [np.dot(self.y, self.matrix_a[:,j]) - self.vector_c[j] for j in J]
+        deltas = [np.dot(self.y, self.matrix_a[:, j]) - self.vector_c[j] for j in J]
         j_not_basis_plus = [num for num, elem in enumerate(deltas)
-                                 if elem >= 0 and num in self.j_not_basis]
+                            if elem >= 0 and num in self.j_not_basis]
         j_not_basis_minus = [elem for elem in self.j_not_basis
-                                  if elem not in j_not_basis_plus]
+                             if elem not in j_not_basis_plus]
 
         while True:
             # step 2
@@ -220,7 +225,7 @@ class LinearProgrammingTask(object):
 
             # step 4
             k, j_k = min([(num, j) for num, j in enumerate(self.j_basis)
-                      if not (self.d_bottom[j] <= kappas[j] <= self.d_top[j])])
+                          if not (self.d_bottom[j] <= kappas[j] <= self.d_top[j])])
 
             # step 5
             mu_j_k = 1 if kappas[j_k] < self.d_bottom[j_k] else -1
@@ -230,9 +235,9 @@ class LinearProgrammingTask(object):
 
             # step 6
             sigmas = [-float(deltas[j]) / mu[j]
-                     if (j in j_not_basis_plus and mu[j] < 0)
-                        or (j in j_not_basis_minus and mu[j] > 0) else 'inf'
-                     for j in sorted(j_not_basis_plus + j_not_basis_minus)]
+                      if (j in j_not_basis_plus and mu[j] < 0)
+                         or (j in j_not_basis_minus and mu[j] > 0) else 'inf'
+                      for j in sorted(j_not_basis_plus + j_not_basis_minus)]
             sigmas = zip(sigmas, sorted(j_not_basis_plus + j_not_basis_minus))
             sigma_0, j_star = min(sigmas)
             sigma_0 = float(sigma_0)
@@ -243,7 +248,7 @@ class LinearProgrammingTask(object):
                 return False
 
             # step 8
-            deltas = [deltas[j] + sigma_0*mu[j] for j in J]
+            deltas = [deltas[j] + sigma_0 * mu[j] for j in J]
             self.j_basis[k] = j_star
             self.matrix_a_basis = np.array([self.matrix_a[:, j] for j in self.j_basis]).transpose()
             self.matrix_b = reversal_matrix(self.matrix_a_basis)
@@ -262,6 +267,58 @@ class LinearProgrammingTask(object):
             j_not_basis_minus = [elem for elem in self.j_not_basis
                                  if elem not in j_not_basis_plus]
 
+    def solve_integral_linear_task(self):
+        self._set_variables()
+
+        def round_function(number):
+            ndigits_for_round = 6
+            if round(number, ndigits_for_round) == round(number):
+                return int(round(number))
+            else:
+                return round(number, ndigits_for_round)
+
+        linear_programming_tasks_array = [LinearProgrammingTask(
+            self.matrix_a, self.vector_b, self.vector_c,
+            d_bottom=self.d_bottom, d_top=self.d_top
+        )]
+        integral_task_result = float('-inf')
+        integral_x = None
+
+        while linear_programming_tasks_array:
+            task = linear_programming_tasks_array.pop(0)
+            task_result = task.solve_with_dual_simplex_method_with_constraints()
+            if not task_result:
+                continue
+
+            x0 = task.result_x
+            x0 = map(round_function, x0)
+            not_integral_result_x0 = filter(lambda x: not isinstance(x, int), x0)
+
+            if task.get_target_function_value() <= integral_task_result:
+                continue
+            if not not_integral_result_x0:
+                integral_task_result = task.get_target_function_value()
+                integral_x = x0[:]
+                continue
+
+            x, j = not_integral_result_x0[0], x0.index(not_integral_result_x0[0])
+            x_integral_part = math.floor(x)
+            x_bottom, x_top = int(x_integral_part), int(x_integral_part + 1)
+            d_bottom_new = task.d_bottom[:]
+            d_bottom_new[j] = x_top
+            d_top_new = task.d_top[:]
+            d_top_new[j] = x_bottom
+            linear_programming_tasks_array.insert(0, LinearProgrammingTask(
+                self.matrix_a, self.vector_b, self.vector_c,
+                d_bottom=task.d_bottom, d_top=d_top_new
+            ))
+            linear_programming_tasks_array.insert(0, LinearProgrammingTask(
+                self.matrix_a, self.vector_b, self.vector_c,
+                d_bottom=d_bottom_new, d_top=task.d_top
+            ))
+        self._result_x = integral_x
+        return integral_x is not None
+
     @property
     def result_x(self):
         self._raise_if_was_not_solved()
@@ -275,9 +332,9 @@ class LinearProgrammingTask(object):
     def get_target_function_value(self, task='simple'):
         self._raise_if_was_not_solved()
         if task == 'simple':
-            return sum(map(lambda q, w: q*w, self.vector_c, self._result_x))
+            return sum(map(lambda q, w: q * w, self.vector_c, self._result_x))
         if task == 'dual':
-            return sum(map(lambda q, w: q*w, self.vector_b, self._result_y))
+            return sum(map(lambda q, w: q * w, self.vector_b, self._result_y))
 
     @property
     def exception_message(self):
