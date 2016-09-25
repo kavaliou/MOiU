@@ -20,7 +20,8 @@ class SimplexMethodCase(unittest.TestCase):
             A, b, c, j_basis=jb
         )
         self.assertTrue(task.solve_with_dual_simplex_method())
-        self.assertAlmostEqual(task.get_target_function_value(task='simple'), task.get_target_function_value(task='dual'))
+        self.assertAlmostEqual(task.get_target_function_value(task='simple'),
+                               task.get_target_function_value(task='dual'))
         np.testing.assert_array_almost_equal(task.result_y, [0, -3, 0, 0])
         self.assertEqual(float(task.get_target_function_value()), 0)
 
@@ -37,7 +38,8 @@ class SimplexMethodCase(unittest.TestCase):
             A, b, c, j_basis=jb
         )
         self.assertTrue(task.solve_with_dual_simplex_method())
-        self.assertAlmostEqual(task.get_target_function_value(task='simple'), task.get_target_function_value(task='dual'))
+        self.assertAlmostEqual(task.get_target_function_value(task='simple'),
+                               task.get_target_function_value(task='dual'))
         np.testing.assert_array_almost_equal(task.result_y, [1, 0, 0])
         self.assertEqual(float(task.get_target_function_value()), -4)
 
@@ -54,7 +56,8 @@ class SimplexMethodCase(unittest.TestCase):
             A, b, c, j_basis=jb
         )
         self.assertTrue(task.solve_with_dual_simplex_method())
-        self.assertAlmostEqual(task.get_target_function_value(task='simple'), task.get_target_function_value(task='dual'))
+        self.assertAlmostEqual(task.get_target_function_value(task='simple'),
+                               task.get_target_function_value(task='dual'))
         np.testing.assert_array_almost_equal(task.result_y, [0, 0, 2])
         self.assertEqual(float(task.get_target_function_value()), -4)
 
@@ -108,6 +111,59 @@ class SimplexMethodCase(unittest.TestCase):
         np.testing.assert_array_almost_equal(task.result_x, [5, 3, 1, 0, 4, 6])
         self.assertEqual(float(task.get_target_function_value()), 67)
 
+    def test_task_2_from_method(self):
+        c = np.array([3, 0.5, 4, 4, 1, 5], dtype=np.float64)
+        b = np.array([15, 0, 13], dtype=np.float64)
+        A = np.array([[1, 0, 2, 2, -3, 3],
+                      [0, 1, 0, -1, 0, 1],
+                      [1, 0, 1, 3, 2, 1]], dtype=np.float64)
+        d_bottom = [0, 0, 0, 0, 0, 0]
+        d_top = [3, 5, 4, 3, 3, 4]
+        task = LinearProgrammingTask(
+            A, b, c,
+            d_bottom=d_bottom, d_top=d_top
+        )
+        self.assertTrue(task.solve_with_dual_simplex_method_with_constraints())
+        np.testing.assert_array_almost_equal(task.result_x, [3, 0, 4, 1.1818, 0.6364, 1.1818], 4)
+        self.assertAlmostEqual(float(task.get_target_function_value()), 36.2727, 4)
+
+    def test_task_3_from_method(self):
+        c = np.array([2, 1, -2, -1, 4, -5, 5, 5], dtype=np.float64)
+        b = np.array([40, 107, 61], dtype=np.float64)
+        A = np.array([[1, 0, 0, 12, 1, -3, 4, -1],
+                      [0, 1, 0, 11, 12, 3, 5, 3],
+                      [0, 0, 1, 1, 0, 22, -2, 1]], dtype=np.float64)
+        d_bottom = [0, 0, 0, 0, 0, 0, 0, 0]
+        d_top = [3, 5, 5, 3, 4, 5, 6, 3]
+        task = LinearProgrammingTask(
+            A, b, c,
+            d_bottom=d_bottom, d_top=d_top
+        )
+        self.assertTrue(task.solve_with_dual_simplex_method_with_constraints())
+        np.testing.assert_array_almost_equal(task.result_x,
+                                             [3, 5, 0, 1.8779, 2.7545, 3.0965, 6, 3], 4)
+        self.assertAlmostEqual(float(task.get_target_function_value()), 49.6577, 4)
+
+    def test_task_4_from_method(self):
+        c = np.array([-1, 5, -2, 4, 3, 1, 2, 8, 3], dtype=np.float64)
+        b = np.array([3, 9, 9, 5, 9], dtype=np.float64)
+        A = np.array([[1, -3, 2, 0, 1, -1, 4, -1, 0],
+                      [1, -1, 6, 1, 0, -2, 2, 2, 0],
+                      [2, 2, -1, 1, 0, -3, 8, -1, 1],
+                      [4, 1, 0, 0, 1, -1, 0, -1, 1],
+                      [1, 1, 1, 1, 1, 1, 1, 1, 1]], dtype=np.float64)
+        d_bottom = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        d_top = [5, 5, 5, 5, 5, 5, 5, 5, 5]
+        task = LinearProgrammingTask(
+            A, b, c,
+            d_bottom=d_bottom, d_top=d_top
+        )
+        self.assertTrue(task.solve_with_dual_simplex_method_with_constraints())
+        np.testing.assert_array_almost_equal(
+            task.result_x,
+            [1.1579, 0.6942, 0, 0, 2.8797, 0, 1.0627, 3.2055, 0], 4)
+        self.assertAlmostEqual(float(task.get_target_function_value()), 38.7218, 4)
+
     def test_task_5_from_method(self):
         c = np.array([1, 2, 1, -3, 3, 1, 0], dtype=np.float64)
         b = np.array([1, 4, 7], dtype=np.float64)
@@ -118,6 +174,40 @@ class SimplexMethodCase(unittest.TestCase):
         ], dtype=np.float64)
         d_bottom = [-1, 1, -2, 0, 1, 2, 4]
         d_top = [3, 2, 2, 5, 3, 4, 5]
+        task = LinearProgrammingTask(
+            A, b, c,
+            d_bottom=d_bottom, d_top=d_top
+        )
+        self.assertFalse(task.solve_with_dual_simplex_method_with_constraints())
+
+    def test_task_6_from_method(self):
+        c = np.array([0, 1, 2, 1, -3, 4, 7], dtype=np.float64)
+        b = np.array([1.5, 9, 2], dtype=np.float64)
+        A = np.array([[2, -1, 1, 0, 0, -1, 3],
+                      [0, 4, -1, 2, 3, -2, 2],
+                      [3, 1, 0, 1, 0, 1, 4]], dtype=np.float64)
+        d_bottom = [0, 0, -3, 0, -1, 1, 0]
+        d_top = [3, 3, 4, 7, 5, 3, 2]
+        task = LinearProgrammingTask(
+            A, b, c,
+            d_bottom=d_bottom, d_top=d_top
+        )
+        self.assertTrue(task.solve_with_dual_simplex_method_with_constraints())
+        np.testing.assert_array_almost_equal(
+            task.result_x,
+            [0, 1, 3.5, 0, 3.5, 1, 0], 4)
+        self.assertAlmostEqual(float(task.get_target_function_value()), 1.5, 4)
+
+    def test_task_7_from_method(self):
+        c = np.array([0, -1, 1, 0, 4, 3], dtype=np.float64)
+        b = np.array([2, 2, 5], dtype=np.float64)
+        A = np.array([
+            [2, 1, 0, 3, -1, -1],
+            [0, 1, -2, 1, 0, 3],
+            [3, 0, 1, 1, 1, 1]
+        ], dtype=np.float64)
+        d_bottom = [2, 0, -1, -3, 2, 1]
+        d_top = [7, 3, 2, 3, 4, 5]
         task = LinearProgrammingTask(
             A, b, c,
             d_bottom=d_bottom, d_top=d_top
