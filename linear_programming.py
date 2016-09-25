@@ -19,6 +19,7 @@ class LinearProgrammingTask(object):
         }
 
         self.matrix_a = None
+        self.matrix_a_basis = None
         self.vector_b = None
         self.vector_c = None
         self.x0 = None
@@ -110,8 +111,34 @@ class LinearProgrammingTask(object):
     def _prepare_task_for_dual_simplex_method(self):
         self._set_variables()
         self.n = len(self.vector_c)
+        self.m = len(self.vector_b)
+
+        answer = []
+        def gen(n, m, mas=None):
+            if mas is None:
+                mas = []
+
+            for i in range(n):
+                if i not in mas:
+                    mas.append(i)
+                    if m == len(mas):
+                        answer.append(mas[:])
+                    else:
+                        gen(n, m, mas)
+                    mas.remove(i)
+        if self.j_basis is None:
+            gen(self.n, self.m)
+            for i in answer:
+                matrix_a_basis = np.array([self.matrix_a[:, j] for j in i]).transpose()
+                if np.linalg.det(matrix_a_basis):
+                    self.j_basis = i
+                    self.matrix_a_basis = matrix_a_basis
+                    break
+
         self.j_not_basis = [j for j in xrange(self.n) if j not in self.j_basis]
-        self.matrix_a_basis = np.array([self.matrix_a[:, j] for j in self.j_basis]).transpose()
+
+        if self.matrix_a_basis is None:
+            self.matrix_a_basis = np.array([self.matrix_a[:, j] for j in self.j_basis]).transpose()
         self.matrix_b = reversal_matrix(self.matrix_a_basis)
         c_basis = [self.vector_c[j] for j in xrange(self.n) if j in self.j_basis]
         if self.y is None:
@@ -202,11 +229,12 @@ class LinearProgrammingTask(object):
             mu = [np.dot(delta_y, self.matrix_a[:, j]) for j in J]
 
             # step 6
-            sigmas = np.array([-float(deltas[j]) / mu[j]
+            sigmas = [-float(deltas[j]) / mu[j]
                      if (j in j_not_basis_plus and mu[j] < 0)
-                        or (j in j_not_basis_minus and mu[j] > 0) else 'Inf'
-                     for j in sorted(j_not_basis_plus + j_not_basis_minus)])
-            sigma_0, j_star = min(map(lambda x: (x[1], x[0]), enumerate(sigmas)))
+                        or (j in j_not_basis_minus and mu[j] > 0) else 'inf'
+                     for j in sorted(j_not_basis_plus + j_not_basis_minus)]
+            sigmas = zip(sigmas, sorted(j_not_basis_plus + j_not_basis_minus))
+            sigma_0, j_star = min(sigmas)
             sigma_0 = float(sigma_0)
 
             # step 7

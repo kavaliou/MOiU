@@ -16,7 +16,6 @@ class SimplexMethodCase(unittest.TestCase):
             [0, -2, 2, 0, 0, 0, 1]
         ], dtype=np.float64)
         jb = [3, 4, 5, 6]
-        y = np.array([0, 0, 0, 0], dtype=np.float64)
         task = LinearProgrammingTask(
             A, b, c, j_basis=jb
         )
@@ -34,7 +33,6 @@ class SimplexMethodCase(unittest.TestCase):
             [-2, 1, -2, 0, 0, 1]
         ], dtype=np.float64)
         jb = [3, 4, 5]
-        y = np.array([0, 0, 0], dtype=np.float64)
         task = LinearProgrammingTask(
             A, b, c, j_basis=jb
         )
@@ -52,7 +50,6 @@ class SimplexMethodCase(unittest.TestCase):
             [-2, 2, -2, -2, 0, 0, 1]
         ], dtype=np.float64)
         jb = [4, 5, 6]
-        y = np.array([0, 0, 0], dtype=np.float64)
         task = LinearProgrammingTask(
             A, b, c, j_basis=jb
         )
@@ -70,7 +67,6 @@ class SimplexMethodCase(unittest.TestCase):
             [-1, -2, 0, 0, 0, 1]
         ], dtype=np.float64)
         jb = [3, 4, 5]
-        y = np.array([0, 0, 0], dtype=np.float64)
         task = LinearProgrammingTask(
             A, b, c, j_basis=jb
         )
@@ -84,11 +80,10 @@ class SimplexMethodCase(unittest.TestCase):
             [1, 0, 1, 1, 0, 0],
             [0, 1, 0, 0, 1, 0]
         ], dtype=np.float64)
-        jb = [3, 4, 5]
         d_bottom = [0, -1, 2, 1, -1, 0]
         d_top = [2, 4, 4, 3, 3, 5]
         task = LinearProgrammingTask(
-            A, b, c, j_basis=jb,
+            A, b, c,
             d_bottom=d_bottom, d_top=d_top
         )
         self.assertTrue(task.solve_with_dual_simplex_method_with_constraints())
@@ -103,11 +98,10 @@ class SimplexMethodCase(unittest.TestCase):
             [4, -1, 1, 0, 1, 0],
             [2, 4, 2, 0, 0, 1]
         ], dtype=np.float64)
-        jb = [0, 1, 2]
         d_bottom = [2, 1, 0, 0, 1, 1]
         d_top = [6, 6, 5, 2, 4, 6]
         task = LinearProgrammingTask(
-            A, b, c, j_basis=jb,
+            A, b, c,
             d_bottom=d_bottom, d_top=d_top
         )
         self.assertTrue(task.solve_with_dual_simplex_method_with_constraints())
@@ -122,11 +116,10 @@ class SimplexMethodCase(unittest.TestCase):
             [0, 5, 6, 1, 0, -3, -2],
             [3, 2, 2, 1, 1, 1, 5]
         ], dtype=np.float64)
-        jb = [0, 3, 4]
         d_bottom = [-1, 1, -2, 0, 1, 2, 4]
         d_top = [3, 2, 2, 5, 3, 4, 5]
         task = LinearProgrammingTask(
-            A, b, c, j_basis=jb,
+            A, b, c,
             d_bottom=d_bottom, d_top=d_top
         )
         self.assertFalse(task.solve_with_dual_simplex_method_with_constraints())
