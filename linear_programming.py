@@ -267,11 +267,10 @@ class LinearProgrammingTask(object):
             j_not_basis_minus = [elem for elem in self.j_not_basis
                                  if elem not in j_not_basis_plus]
 
-    def solve_integral_linear_task(self):
+    def solve_integral_linear_task(self, log=False):
         self._set_variables()
 
-        def round_function(number):
-            ndigits_for_round = 6
+        def round_function(number, ndigits_for_round=6):
             if round(number, ndigits_for_round) == round(number):
                 return int(round(number))
             else:
@@ -284,20 +283,33 @@ class LinearProgrammingTask(object):
         integral_task_result = float('-inf')
         integral_x = None
 
+        tasks_count = 0
         while linear_programming_tasks_array:
+            tasks_count += 1
+            if log:
+                print '-------------------'
+
             task = linear_programming_tasks_array.pop(0)
             task_result = task.solve_with_dual_simplex_method_with_constraints()
             if not task_result:
+                if log:
+                    print 'not solve'
                 continue
 
             x0 = task.result_x
             x0 = map(round_function, x0)
+            if log:
+                print 'x =', x0
             not_integral_result_x0 = filter(lambda x: not isinstance(x, int), x0)
 
             if task.get_target_function_value() <= integral_task_result:
+                if log:
+                    print 'target function value %s lesser than current record' % task.get_target_function_value()
                 continue
             if not not_integral_result_x0:
                 integral_task_result = task.get_target_function_value()
+                if log:
+                    print 'save task result =', integral_task_result
                 integral_x = x0[:]
                 continue
 
@@ -308,14 +320,20 @@ class LinearProgrammingTask(object):
             d_bottom_new[j] = x_top
             d_top_new = task.d_top[:]
             d_top_new[j] = x_bottom
+
+            # Added j_basis
             linear_programming_tasks_array.insert(0, LinearProgrammingTask(
                 self.matrix_a, self.vector_b, self.vector_c,
-                d_bottom=task.d_bottom, d_top=d_top_new
+                d_bottom=task.d_bottom, d_top=d_top_new, j_basis=task.j_basis
             ))
             linear_programming_tasks_array.insert(0, LinearProgrammingTask(
                 self.matrix_a, self.vector_b, self.vector_c,
-                d_bottom=d_bottom_new, d_top=task.d_top
+                d_bottom=d_bottom_new, d_top=task.d_top, j_basis=task.j_basis
             ))
+
+        if log:
+            print 'count =', tasks_count
+
         self._result_x = integral_x
         return integral_x is not None
 
