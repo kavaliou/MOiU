@@ -53,5 +53,26 @@ def test_task_for_second():
         print 'Target function: %s' % round(task.get_target_function_value(), 3)
 
 
+def test_task_for_third():
+    c = np.array([7, -2, 6, 0, 5, 2], dtype=np.float64)
+    b = np.array([-8, 22, 30], dtype=np.float64)
+    A = np.array([
+        [1, -5, 3, 1, 0, 0],
+        [4, -1, 1, 0, 1, 0],
+        [2, 4, 2, 0, 0, 1],
+    ], dtype=np.float64)
+    task = LinearProgrammingTask(
+        A, b, c, j_basis=[3, 4, 5]
+    )
+
+    has_answer = task.solve_with_method_gomori()
+
+    print
+    print 'Has answer: %s' % has_answer
+    if has_answer:
+        print 'x: %s' % map(lambda x: round(x, 3), task.result_x)
+        print 'Target function: %s' % round(task.get_target_function_value(), 3)
+
+
 if __name__ == '__main__':
-    test_task_for_second()
+    test_task_for_third()

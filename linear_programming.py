@@ -337,6 +337,123 @@ class LinearProgrammingTask(object):
         self._result_x = integral_x
         return integral_x is not None
 
+    def solve_with_method_gomori(self, log=False):
+        self._set_variables()
+
+        def round_function(number, ndigits_for_round=6):
+            if round(number, ndigits_for_round) == round(number):
+                return int(round(number))
+            else:
+                return round(number, ndigits_for_round)
+
+        def not_integral_part(number):
+            return number - math.floor(number)
+
+        n = len(self.vector_c)
+        m = len(self.vector_b)
+        j_basis = self.j_basis
+        j_all = range(n)
+        j_synthetic = []
+        m_synthetic = []
+        matrix_a = self.matrix_a
+        vector_b = self.vector_b
+        vector_c = self.vector_c
+
+        while True:
+            linear_programming_task = LinearProgrammingTask(
+                matrix_a, vector_b, vector_c, j_basis=j_basis[:]
+            )
+            has_answer = linear_programming_task.solve_with_dual_simplex_method()
+
+            fresh_j_basis = linear_programming_task.j_basis
+            x0 = map(round_function, linear_programming_task.result_x)
+
+            print 'x0 =', x0
+            print 'j_basis =', fresh_j_basis
+
+            # reduce task size
+            synthetic_indexes_for_delete = [j for j in j_synthetic if j in fresh_j_basis]
+            while synthetic_indexes_for_delete:
+                idx = synthetic_indexes_for_delete[0]
+                synthetic_map = dict(zip(j_synthetic, m_synthetic))
+
+                row = matrix_a[synthetic_map[idx], :]
+                _b = vector_b[synthetic_map[idx]]
+                for i in m_synthetic:
+                    if i == synthetic_map[idx]:
+                        continue
+                    row_for_change = matrix_a[i, :]
+                    mul = row_for_change[idx]
+                    sub_row = mul * row
+                    vector_b[i] = vector_b[i] - mul * _b
+                    matrix_a[i, :] = row_for_change - sub_row
+
+                matrix_a = np.delete(matrix_a, idx, 1)
+                matrix_a = np.delete(matrix_a, synthetic_map[idx], 0)
+                vector_b = np.delete(vector_b, synthetic_map[idx], 0)
+                vector_c = np.delete(vector_c, idx, 0)
+
+                j_synthetic.pop()
+                m_synthetic.pop()
+                n -= 1
+                m -= 1
+                fresh_j_basis.remove(idx)
+                x0.pop((j_all+j_synthetic).index(idx))
+
+                # recalculate
+                synthetic_indexes_for_delete = [j for j in j_synthetic if j in fresh_j_basis]
+
+            x_opt = [x for idx, x in enumerate(x0) if idx in fresh_j_basis]
+            not_integral_result_x0 = filter(lambda x: not isinstance(x, int), x_opt)
+
+            print 'not integral x0 = ', not_integral_result_x0
+
+            if not not_integral_result_x0:
+                self._result_x = x0[:len(j_all)]
+                return True
+
+            matrix_a_basis = np.array([matrix_a[:, j] for j in fresh_j_basis]).transpose()
+            reverse_a_matrix = reversal_matrix(matrix_a_basis)
+
+            i0 = x0.index(not_integral_result_x0[0])
+            s = fresh_j_basis.index(i0)
+            y = reverse_a_matrix[s, :]
+
+            print 'i0 =', i0
+            print 's =', s
+
+            a = [np.dot(y, matrix_a[:, j]) for j in j_all + j_synthetic]
+            b = np.dot(y, vector_b)
+
+            j_array = set(j_all + j_synthetic) - set(fresh_j_basis)
+
+            a_new = [0] * (len(j_all) + len(j_synthetic))
+            for j in j_array:
+                a_new[j] = -not_integral_part(a[j])
+            a_new.append(1)
+            print 'new bound in matrix a =', map(round_function, a_new)
+            print 'new bound in vector b =', round_function(b)
+            m_a = [list(i) + [0] for i in matrix_a]
+            m_a.append(a_new)
+            matrix_a = np.array(m_a, dtype=np.float64)
+
+            v_b = list(vector_b)
+            v_b.append(-not_integral_part(b))
+            vector_b = np.array(v_b, dtype=np.float64)
+
+            v_c = list(vector_c)
+            v_c.append(0)
+            vector_c = np.array(v_c, dtype=np.float64)
+
+            j_synthetic.append(n)
+            m_synthetic.append(m)
+            j_basis = fresh_j_basis[:]
+            j_basis.append(n)
+            n += 1
+            m += 1
+
+            print '\n----------\n'
+
     @property
     def result_x(self):
         self._raise_if_was_not_solved()
